@@ -1,0 +1,28 @@
+[23:17, 19/08/2026] Shambhaviiii Mote: -- Optimization DDL: Composite Covering Index
+CREATE INDEX idx_orders_status_date_amt 
+ON Orders(OrderStatus, OrderDate, TotalAmount);
+[23:17, 19/08/2026] Shambhaviiii Mote: -- Optimized CTE replacing nested correlated subquery
+WITH RestaurantAvgPrice AS (
+    SELECT 
+        RestaurantID, 
+        AVG(Price) AS AvgPrice
+    FROM MenuItem
+    GROUP BY RestaurantID
+)
+SELECT 
+    m.ItemID, 
+    m.ItemName, 
+    m.Price, 
+    m.RestaurantID
+FROM MenuItem m
+INNER JOIN RestaurantAvgPrice rap ON m.RestaurantID = rap.RestaurantID
+WHERE m.Price > rap.AvgPrice;
+[23:18, 19/08/2026] Shambhaviiii Mote: -- Composite index for order filtering
+CREATE INDEX idx_orders_status_date_amt ON Orders(OrderStatus, OrderDate, TotalAmount);
+
+-- Foreign key indexes for relational joins
+CREATE INDEX idx_orders_custid ON Orders(CustomerID);
+CREATE INDEX idx_orders_restid ON Orders(RestaurantID);
+CREATE INDEX idx_orderitem_orderid ON OrderItem(OrderID);
+CREATE INDEX idx_orderitem_itemid ON OrderItem(ItemID);
+CREATE INDEX idx_menuitem_restid ON MenuItem(RestaurantID);
